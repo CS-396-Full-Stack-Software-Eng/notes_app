@@ -5,7 +5,12 @@ interface NoteCardProps {
   onClick?: () => void;
 }
 
-export function NoteCard({ content, color = "#FCA5A5", date, onClick }: NoteCardProps) {
+export function NoteCard({
+  content,
+  color = "#FCA5A5",
+  date,
+  onClick,
+}: NoteCardProps) {
   return (
     <article
       onClick={onClick}
@@ -13,18 +18,25 @@ export function NoteCard({ content, color = "#FCA5A5", date, onClick }: NoteCard
       style={{ backgroundColor: color }}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      } : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
     >
       <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">
         {content}
       </p>
       {date && (
-        <time className="text-xs text-gray-600 mt-4" dateTime={new Date(date).toISOString()}>
+        <time
+          className="text-xs text-gray-600 mt-4"
+          dateTime={new Date(date).toISOString()}
+        >
           {date}
         </time>
       )}

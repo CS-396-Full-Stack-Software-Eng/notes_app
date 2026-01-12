@@ -1,39 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Notes Application
 
-## Getting Started
+A full-stack notes application built with Next.js (frontend) and FastAPI (backend), following Atomic Design methodology.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Create, read, update, and delete notes
+- Color-coded notes with customizable colors
+- Master-detail view with inline editing
+- RESTful API backend
+- Semantic HTML and accessible components
+
+## Project Structure
+
+```
+w1_basic_notes/
+├── frontend/          # Next.js frontend application
+│   ├── app/          # Next.js app directory
+│   ├── components/   # Atomic Design components
+│   └── ...
+└── backend/          # FastAPI backend application
+    ├── main.py       # FastAPI server
+    ├── pyproject.toml # Poetry dependencies
+    └── ...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Running the Full Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js (v18 or higher)
+- Python (v3.10 or higher)
+- Poetry (Python package manager)
 
-## Learn More
+### Backend Setup
 
-To learn more about Next.js, take a look at the following resources:
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Install Poetry (if not already installed):
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Install dependencies:
+```bash
+poetry install
+```
 
-## Deploy on Vercel
+4. Run the FastAPI server:
+```bash
+poetry run uvicorn main:app --reload
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The API will be available at:
+- API: http://localhost:8000
+- Interactive docs: http://localhost:8000/docs
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Run the development server:
+```bash
+npm run dev
+```
+
+The frontend will be available at http://localhost:3000
+
+### Running Both
+
+To run the full stack, you need to run both servers simultaneously in separate terminal windows:
+
+**Terminal 1 (Backend):**
+```bash
+cd backend
+poetry run uvicorn main:app --reload
+```
+
+**Terminal 2 (Frontend):**
+```bash
+cd frontend
+npm run dev
+```
+
+Then open http://localhost:3000 in your browser.
+
+## API Endpoints
+
+- `GET /api/notes` - Get all notes
+- `GET /api/notes/{id}` - Get a specific note
+- `POST /api/notes` - Create a new note
+- `PUT /api/notes/{id}` - Update a note
+- `DELETE /api/notes/{id}` - Delete a note
+
+## Technology Stack
+
+**Frontend:**
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- Atomic Design methodology
+
+**Backend:**
+- FastAPI
+- Pydantic
+- Uvicorn
+- Python 3.10+
 
 ## UI Design Citation
 

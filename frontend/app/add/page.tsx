@@ -10,26 +10,19 @@ export default function AddNotePage() {
   const router = useRouter();
 
   const handleAddNote = async (note: { content: string; color: string }) => {
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: note.content,
-          color: note.color,
-        }),
-      });
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: note.content,
+        color: note.color,
+      }),
+    });
 
-      if (response.ok) {
-        // Navigate back to home page
-        router.push("/");
-      } else {
-        console.error("Failed to create note");
-      }
-    } catch (error) {
-      console.error("Error creating note:", error);
+    if (response.ok) {
+      router.push("/");
     }
   };
 
