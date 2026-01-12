@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, use } from "react";
 import { NoteCard } from "@/components/molecules/note-card";
 import { NoteForm } from "@/components/organisms/note-form";
 import { Button } from "@/components/atoms/button";
@@ -17,12 +17,19 @@ const API_URL = "/api/notes";
 export function NotesList() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [loadingSelected, setLoadingSelected] = useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+
+  const latestRequestIdRef = useRef(0);
 
   useEffect(() => {
     fetchNotes();
   }, []);
+
+  console.log("Selected Note Id:", selectedNoteId);
 
   const fetchNotes = async () => {
     const response = await fetch(API_URL);
@@ -33,14 +40,89 @@ export function NotesList() {
     setLoading(false);
   };
 
+  // Common pattern is to naively fetch without cancellation
+  // 3 approaches
+  // 1. use a cleanup function with a flag <-- this is nice
+  // 2. use a ref to track latest request <-- this reinvents the wheel
+  // 3. use AbortController to cancel previous requests <-- best because no wasted work
+  // useEffect(() => {
+  //   let ignore = false;
+
+  //   if (selectedNoteId) {
+  //     const fetchNoteById = async (noteId: string) => {
+  //       const response = await fetch(`${API_URL}/${noteId}`);
+  //       // console.log("Fetching note with ID:", noteId, selectedNoteId);
+
+  //       if (response.ok && !ignore) {
+  //         const data = await response.json();
+  //         setSelectedNote(data);
+  //       }
+
+  //       setLoadingSelected(false);
+  //     };
+
+  //     fetchNoteById(selectedNoteId);
+  //   }
+
+  //   return () => {
+  //     ignore = true;
+  //   };
+  // }, [selectedNoteId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    if (selectedNoteId) {
+      const fetchNoteById = async (noteId: string) => {
+        try {
+          const response = await fetch(`${API_URL}/${noteId}`, { signal });
+
+          if (!response.ok) {
+            throw new Error(`Error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          setSelectedNote(data);
+        } catch (error) {
+          if (error instanceof Error) {
+            if (error.name === "AbortError") {
+              console.log("Fetch aborted");
+            } else {
+              console.error("Fetch error:", error);
+            }
+          }
+        }
+        setLoadingSelected(false);
+      };
+
+      fetchNoteById(selectedNoteId);
+    }
+
+    return () => {
+      controller.abort();
+    };
+  }, [selectedNoteId]);
+
   const handleNoteClick = async (noteId: string) => {
     setLoadingSelected(true);
-    const response = await fetch(`${API_URL}/${noteId}`);
-    if (response.ok) {
-      const data = await response.json();
-      setSelectedNote(data);
-    }
-    setLoadingSelected(false);
+    setSelectedNoteId(noteId);
+    const requestId = ++latestRequestIdRef.current;
+
+    // const response = await fetch(`${API_URL}/${noteId}`);
+
+    // if (requestId !== latestRequestIdRef.current) {
+    //   // A newer request has been made; ignore this response
+    //   return;
+    // }
+
+    // if (response.ok) {
+    //   const data = await response.json();
+    //   setLoadingSelected(false);
+    //   setSelectedNote(data);
+    // }
+    // setLoadingSelected(false);
+    // setSelectedNoteId(noteId);
   };
 
   const handleUpdateNote = async (updatedNote: {
@@ -85,6 +167,10 @@ export function NotesList() {
 
   if (loading) {
     return <p className="text-gray-600">Loading notes...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600">Error: {error}</p>;
   }
 
   if (notes.length === 0) {

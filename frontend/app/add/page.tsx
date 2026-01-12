@@ -3,26 +3,45 @@
 import { useRouter } from "next/navigation";
 import { NoteForm } from "@/components/organisms/note-form";
 import { Header } from "@/components/organisms/header";
+import { useState } from "react";
 
 const API_URL = "/api/notes";
+
+type Status = "idle" | "submitting" | "success" | "error";
 
 export default function AddNotePage() {
   const router = useRouter();
 
-  const handleAddNote = async (note: { content: string; color: string }) => {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        content: note.content,
-        color: note.color,
-      }),
-    });
+  const [status, setStatus] = useState<Status>("idle");
+  const [error, setError] = useState<string | null>(null);
 
-    if (response.ok) {
-      router.push("/");
+  const handleAddNote = async (note: { content: string; color: string }) => {
+    console.log("status:", status);
+    if (status === "submitting" || status === "success") return;
+
+    setStatus("submitting");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: note.content,
+          color: note.color,
+        }),
+      });
+
+      if (response.ok) {
+        setStatus("success");
+        setError(null);
+
+        router.push("/");
+      }
+    } catch (error) {
+      setStatus("error");
+      setError("Error: Failed to add note.");
     }
   };
 
