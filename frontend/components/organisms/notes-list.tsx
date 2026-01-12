@@ -12,26 +12,17 @@ interface Note {
   date?: string;
 }
 
-const API_URL = "http://localhost:8000/api/notes";
+const API_URL = "/api/notes";
 
 export function NotesList() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [loadingSelected, setLoadingSelected] = useState(false);
 
   useEffect(() => {
     fetchNotes();
   }, []);
-
-  useEffect(() => {
-    if (selectedNoteId) {
-      fetchSelectedNote(selectedNoteId);
-    } else {
-      setSelectedNote(null);
-    }
-  }, [selectedNoteId]);
 
   const fetchNotes = async () => {
     const response = await fetch(API_URL);
@@ -42,7 +33,7 @@ export function NotesList() {
     setLoading(false);
   };
 
-  const fetchSelectedNote = async (noteId: string) => {
+  const handleNoteClick = async (noteId: string) => {
     setLoadingSelected(true);
     const response = await fetch(`${API_URL}/${noteId}`);
     if (response.ok) {
@@ -50,10 +41,6 @@ export function NotesList() {
       setSelectedNote(data);
     }
     setLoadingSelected(false);
-  };
-
-  const handleNoteClick = (noteId: string) => {
-    setSelectedNoteId(noteId);
   };
 
   const handleUpdateNote = async (updatedNote: {
@@ -75,7 +62,7 @@ export function NotesList() {
 
     if (response.ok) {
       await fetchNotes();
-      setSelectedNoteId(null);
+      setSelectedNote(null);
     }
   };
 
@@ -92,7 +79,7 @@ export function NotesList() {
 
     if (response.ok) {
       await fetchNotes();
-      setSelectedNoteId(null);
+      setSelectedNote(null);
     }
   };
 
@@ -123,12 +110,12 @@ export function NotesList() {
         ))}
       </ul>
 
-      {selectedNoteId && (
+      {selectedNote && (
         <aside className="w-96 sticky top-0 h-fit">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Edit Note</h2>
             <button
-              onClick={() => setSelectedNoteId(null)}
+              onClick={() => setSelectedNote(null)}
               className="text-gray-500 hover:text-gray-700"
               aria-label="Close editor"
             >
@@ -137,7 +124,7 @@ export function NotesList() {
           </div>
           {loadingSelected ? (
             <p className="text-gray-600">Loading note...</p>
-          ) : selectedNote ? (
+          ) : (
             <section className="bg-white p-6 rounded-lg shadow-sm">
               <NoteForm
                 onSubmit={handleUpdateNote}
@@ -151,7 +138,7 @@ export function NotesList() {
                 </Button>
               </div>
             </section>
-          ) : null}
+          )}
         </aside>
       )}
     </div>

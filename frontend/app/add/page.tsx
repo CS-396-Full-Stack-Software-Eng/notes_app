@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { NoteForm } from "@/components/organisms/note-form";
 import { Header } from "@/components/organisms/header";
 
-const API_URL = "http://localhost:8000/api/notes";
+const API_URL = "/api/notes";
 
 export default function AddNotePage() {
   const router = useRouter();
