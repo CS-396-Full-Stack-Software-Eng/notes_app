@@ -13,29 +13,30 @@ interface Note {
   date?: string;
 }
 
+const API_URL = "http://localhost:8000/api/notes";
+
 export default function Home() {
   const router = useRouter();
-  const [notes, setNotes] = useState<Note[]>(() => {
-    // Initialize state from localStorage
-    if (typeof window !== "undefined") {
-      const savedNotes = localStorage.getItem("notes");
-      return savedNotes ? JSON.parse(savedNotes) : [];
-    }
-    return [];
-  });
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Refresh notes when window gains focus (user returns from add page)
   useEffect(() => {
-    const handleFocus = () => {
-      const savedNotes = localStorage.getItem("notes");
-      if (savedNotes) {
-        setNotes(JSON.parse(savedNotes));
-      }
-    };
-
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
+    fetchNotes();
   }, []);
+
+  const fetchNotes = async () => {
+    try {
+      const response = await fetch(API_URL);
+      if (response.ok) {
+        const data = await response.json();
+        setNotes(data);
+      }
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddNote = () => {
     router.push("/add");
@@ -44,6 +45,18 @@ export default function Home() {
   const handleNoteClick = (noteId: string) => {
     router.push(`/edit/${noteId}`);
   };
+
+  if (loading) {
+    return (
+      <>
+        <Sidebar onAddNote={handleAddNote} />
+        <main className="flex-1 p-8 overflow-y-auto bg-gray-50">
+          <Header title="Notes" />
+          <p className="text-gray-600">Loading notes...</p>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
