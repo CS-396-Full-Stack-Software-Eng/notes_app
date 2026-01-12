@@ -84,6 +84,7 @@ To run the full stack, you need to run both servers simultaneously in separate t
 **Terminal 1 (Backend):**
 ```bash
 cd backend
+poetry install
 poetry run uvicorn main:app --reload
 ```
 
