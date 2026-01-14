@@ -19,6 +19,7 @@ export function NotesList() {
   const [loading, setLoading] = useState(true);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [loadingSelected, setLoadingSelected] = useState(false);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchNotes();
@@ -33,14 +34,46 @@ export function NotesList() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    // Initially we used a flag for cleanup
+    // but AbortController is a better approach because
+    // it actually cancels the fetch request
+    // Takeaway: don't follow AI generated patterns/code blindly
+    // understand the state/system boundaries
+    // so that you can guide AI tools effectively
+    // let ignore = false;
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    if (selectedNoteId) {
+      const fetchNoteById = async (noteId: string) => {
+        const response = await fetch(`${API_URL}/${noteId}`, { signal });
+        if (response.ok) {
+          const data = await response.json();
+          setSelectedNote(data);
+        }
+        setLoadingSelected(false);
+      };
+
+      fetchNoteById(selectedNoteId);
+    }
+
+    return () => {
+      // ignore = true;
+      controller.abort();
+    };
+  }, [selectedNoteId]);
+
   const handleNoteClick = async (noteId: string) => {
     setLoadingSelected(true);
-    const response = await fetch(`${API_URL}/${noteId}`);
-    if (response.ok) {
-      const data = await response.json();
-      setSelectedNote(data);
-    }
-    setLoadingSelected(false);
+    setSelectedNoteId(noteId);
+    // Logic below moved to useEffect to handle aborting fetch requests
+    // const response = await fetch(`${API_URL}/${noteId}`);
+    // if (response.ok) {
+    //   const data = await response.json();
+    //   setSelectedNote(data);
+    // }
+    // setLoadingSelected(false);
   };
 
   const handleUpdateNote = async (updatedNote: {
