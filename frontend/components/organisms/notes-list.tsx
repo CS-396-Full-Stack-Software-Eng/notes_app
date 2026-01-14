@@ -1,177 +1,26 @@
-"use client";
-
-import { useState, useEffect, useRef, use } from "react";
+import { Suspense } from "react";
+import Link from "next/link";
 import { NoteCard } from "@/components/molecules/note-card";
-import { NoteForm } from "@/components/organisms/note-form";
-import { Button } from "@/components/atoms/button";
+import { AsyncEditPanel } from "@/components/organisms/edit-panel/async-edit-panel";
+import { EditPanelSkeleton } from "@/components/organisms/edit-panel/edit-panel-skeleton";
+import { Note } from "@/types/note";
 
-interface Note {
-  id: string;
-  content: string;
-  color?: string;
-  date?: string;
+const API_URL = process.env.API_URL || "http://127.0.0.1:8000";
+
+async function fetchNotes(): Promise<Note[]> {
+  const response = await fetch(`${API_URL}/api/notes`, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error("Failed to fetch notes");
+  }
+  return response.json();
 }
 
-const API_URL = "/api/notes";
+interface NotesListProps {
+  selectedNoteId?: string;
+}
 
-export function NotesList() {
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [loadingSelected, setLoadingSelected] = useState(false);
-
-  const [error, setError] = useState<string | null>(null);
-
-  const latestRequestIdRef = useRef(0);
-
-  useEffect(() => {
-    fetchNotes();
-  }, []);
-
-  console.log("Selected Note Id:", selectedNoteId);
-
-  const fetchNotes = async () => {
-    const response = await fetch(API_URL);
-    if (response.ok) {
-      const data = await response.json();
-      setNotes(data);
-    }
-    setLoading(false);
-  };
-
-  // Common pattern is to naively fetch without cancellation
-  // 3 approaches
-  // 1. use a cleanup function with a flag <-- this is nice
-  // 2. use a ref to track latest request <-- this reinvents the wheel
-  // 3. use AbortController to cancel previous requests <-- best because no wasted work
-  // useEffect(() => {
-  //   let ignore = false;
-
-  //   if (selectedNoteId) {
-  //     const fetchNoteById = async (noteId: string) => {
-  //       const response = await fetch(`${API_URL}/${noteId}`);
-  //       // console.log("Fetching note with ID:", noteId, selectedNoteId);
-
-  //       if (response.ok && !ignore) {
-  //         const data = await response.json();
-  //         setSelectedNote(data);
-  //       }
-
-  //       setLoadingSelected(false);
-  //     };
-
-  //     fetchNoteById(selectedNoteId);
-  //   }
-
-  //   return () => {
-  //     ignore = true;
-  //   };
-  // }, [selectedNoteId]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    if (selectedNoteId) {
-      const fetchNoteById = async (noteId: string) => {
-        try {
-          const response = await fetch(`${API_URL}/${noteId}`, { signal });
-
-          if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
-          }
-
-          const data = await response.json();
-          setSelectedNote(data);
-        } catch (error) {
-          if (error instanceof Error) {
-            if (error.name === "AbortError") {
-              console.log("Fetch aborted");
-            } else {
-              console.error("Fetch error:", error);
-            }
-          }
-        }
-        setLoadingSelected(false);
-      };
-
-      fetchNoteById(selectedNoteId);
-    }
-
-    return () => {
-      controller.abort();
-    };
-  }, [selectedNoteId]);
-
-  const handleNoteClick = async (noteId: string) => {
-    setLoadingSelected(true);
-    setSelectedNoteId(noteId);
-    const requestId = ++latestRequestIdRef.current;
-
-    // const response = await fetch(`${API_URL}/${noteId}`);
-
-    // if (requestId !== latestRequestIdRef.current) {
-    //   // A newer request has been made; ignore this response
-    //   return;
-    // }
-
-    // if (response.ok) {
-    //   const data = await response.json();
-    //   setLoadingSelected(false);
-    //   setSelectedNote(data);
-    // }
-    // setLoadingSelected(false);
-    // setSelectedNoteId(noteId);
-  };
-
-  const handleUpdateNote = async (updatedNote: {
-    content: string;
-    color: string;
-  }) => {
-    if (!selectedNote) return;
-
-    const response = await fetch(`${API_URL}/${selectedNote.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        content: updatedNote.content,
-        color: updatedNote.color,
-      }),
-    });
-
-    if (response.ok) {
-      await fetchNotes();
-      setSelectedNote(null);
-    }
-  };
-
-  const handleDeleteNote = async () => {
-    if (!selectedNote) return;
-
-    if (!confirm("Are you sure you want to delete this note?")) {
-      return;
-    }
-
-    const response = await fetch(`${API_URL}/${selectedNote.id}`, {
-      method: "DELETE",
-    });
-
-    if (response.ok) {
-      await fetchNotes();
-      setSelectedNote(null);
-    }
-  };
-
-  if (loading) {
-    return <p className="text-gray-600">Loading notes...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-600">Error: {error}</p>;
-  }
+export async function NotesList({ selectedNoteId }: NotesListProps) {
+  const notes = await fetchNotes();
 
   if (notes.length === 0) {
     return (
@@ -186,46 +35,21 @@ export function NotesList() {
       <ul className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-max list-none flex-1">
         {notes.map((note) => (
           <li key={note.id}>
-            <NoteCard
-              content={note.content}
-              color={note.color}
-              date={note.date}
-              onClick={() => handleNoteClick(note.id)}
-            />
+            <Link href={`/?noteId=${note.id}`} scroll={false}>
+              <NoteCard
+                content={note.content}
+                color={note.color}
+                date={note.date}
+              />
+            </Link>
           </li>
         ))}
       </ul>
 
-      {selectedNote && (
-        <aside className="w-96 sticky top-0 h-fit">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Edit Note</h2>
-            <button
-              onClick={() => setSelectedNote(null)}
-              className="text-gray-500 hover:text-gray-700"
-              aria-label="Close editor"
-            >
-              ✕
-            </button>
-          </div>
-          {loadingSelected ? (
-            <p className="text-gray-600">Loading note...</p>
-          ) : (
-            <section className="bg-white p-6 rounded-lg shadow-sm">
-              <NoteForm
-                onSubmit={handleUpdateNote}
-                initialContent={selectedNote.content}
-                initialColor={selectedNote.color}
-              />
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <Button onClick={handleDeleteNote} variant="danger">
-                  Delete Note
-                </Button>
-              </div>
-            </section>
-          )}
-        </aside>
+      {selectedNoteId && (
+        <Suspense key={selectedNoteId} fallback={<EditPanelSkeleton />}>
+          <AsyncEditPanel noteId={selectedNoteId} />
+        </Suspense>
       )}
     </div>
   );

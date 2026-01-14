@@ -15,7 +15,7 @@ export function IconButton({
   color,
   type = "button"
 }: IconButtonProps) {
-  const baseStyles = "w-10 h-10 rounded-full flex items-center justify-center transition-colors";
+  const baseStyles = "w-10 h-10 rounded-full flex items-center justify-center transition-colors cursor-pointer";
   const variantStyles = variant === "primary"
     ? "bg-black text-white hover:bg-gray-800"
     : "hover:opacity-80";
