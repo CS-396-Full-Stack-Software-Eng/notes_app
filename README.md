@@ -32,7 +32,7 @@ w1_basic_notes/
 - Python (v3.10 or higher)
 - Poetry (Python package manager)
 
-### Backend Setup
+### Fast API Backend Setup
 
 1. Navigate to the backend directory:
 ```bash
@@ -57,6 +57,13 @@ poetry run uvicorn main:app --reload
 The API will be available at:
 - API: http://localhost:8000
 - Interactive docs: http://localhost:8000/docs
+
+### Django Backend Setup
+
+```bash
+poetry install
+poetry run python manage.py runserver
+```
 
 ### Frontend Setup
 
