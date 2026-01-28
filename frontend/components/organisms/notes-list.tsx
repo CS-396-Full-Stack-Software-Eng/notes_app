@@ -9,6 +9,7 @@ const API_URL = process.env.API_URL || "http://127.0.0.1:8000";
 
 async function fetchNotes(): Promise<Note[]> {
   const response = await fetch(`${API_URL}/api/notes`, { cache: "no-store" });
+  // db.getNotes() simulation
   if (!response.ok) {
     throw new Error("Failed to fetch notes");
   }

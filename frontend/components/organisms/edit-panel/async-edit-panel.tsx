@@ -5,7 +5,7 @@ const API_URL = process.env.API_URL || "http://127.0.0.1:8000";
 
 async function fetchNoteById(id: string): Promise<Note | null> {
   // To simulate DB latency, uncomment the following line:
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const response = await fetch(`${API_URL}/api/notes/${id}`, {
     cache: "no-store",
