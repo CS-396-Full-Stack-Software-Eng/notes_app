@@ -18,13 +18,6 @@ class NoteType:
     color: auto
     date: auto
 
-
-@strawberry.input
-class NoteInput:
-    content: str
-    color: Optional[str] = "#FCA5A5"
-
-
 @strawberry.type
 class Query:
     @strawberry.field
@@ -39,23 +32,7 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    def create_note(self, input: NoteInput) -> NoteType:
-        return service.create_note(
-            content=input.content,
-            color=input.color or "#FCA5A5"
-        )
-
-    @strawberry.mutation
-    def update_note(self, note_id: str, input: NoteInput) -> Optional[NoteType]:
-        return service.update_note(
-            note_id=note_id,
-            content=input.content,
-            color=input.color
-        )
-
-    @strawberry.mutation
-    def delete_note(self, note_id: str) -> bool:
-        return service.delete_note(note_id)
-
+    def test_mutation(self) -> str:
+        return "Mutation works!"
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)
