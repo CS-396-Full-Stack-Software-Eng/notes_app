@@ -33,6 +33,7 @@ urlpatterns = [
 
     # REST API routes
     path('api/notes', include('services.notes.rest.urls')),
+    path('api/notes/', include('services.notes.rest.urls')),
 
     # GraphQL API
     path('graphql', GraphQLView.as_view(schema=schema)),
