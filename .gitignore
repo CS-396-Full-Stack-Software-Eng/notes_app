@@ -60,6 +60,35 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Java / Spring Boot / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# Spring Boot H2 Database
+*.mv.db
+*.trace.db
+
+# Eclipse
+.classpath
+.project
+.settings/
+.factorypath
+
+# IntelliJ IDEA (additional)
+*.iml
+*.ipr
+*.iws
+out/
+
 # Python
 __pycache__/
 *.py[cod]
