@@ -1,0 +1,8 @@
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/graphql/NoteInput.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/model/Note.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/graphql/NoteController.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/data/NoteRepository.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/config/CorsConfig.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/service/NoteService.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/data/Note.java
+/Users/lydia/Documents/winter26_cs303/w1_basic_notes/backend_spring/src/main/java/com/notes/app/NotesApplication.java

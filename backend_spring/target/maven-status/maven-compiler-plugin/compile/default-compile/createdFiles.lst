@@ -1,0 +1,7 @@
+com/notes/app/graphql/NoteInput.class
+com/notes/app/service/NoteService.class
+com/notes/app/data/NoteRepository.class
+com/notes/app/NotesApplication.class
+com/notes/app/data/Note.class
+com/notes/app/config/CorsConfig.class
+com/notes/app/graphql/NoteController.class
