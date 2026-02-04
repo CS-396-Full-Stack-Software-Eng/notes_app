@@ -34,5 +34,9 @@ class Mutation:
     @strawberry.mutation
     def test_mutation(self) -> str:
         return "Mutation works!"
+    
+    @strawberry.mutation
+    def create_note(self, content: str, color: str) -> NoteType:
+        return service.create_note(content, color)
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

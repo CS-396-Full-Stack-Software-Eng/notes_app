@@ -43,47 +43,63 @@ w1_basic_notes/
 ### Backend Setup
 
 1. Navigate to the backend directory:
+
 ```bash
 cd backend
 ```
 
 2. Install Poetry (if not already installed):
+
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 3. Install dependencies:
+
 ```bash
 poetry install
 ```
 
 4. Run the FastAPI server:
+
 ```bash
 poetry run uvicorn main:app --reload
 ```
 
 The API will be available at:
+
 - API: http://localhost:8000
 - Interactive docs: http://localhost:8000/docs
+
+### Django Backend Setup
+
+```bash
+poetry install
+poetry run python manage.py runserver
+```
 
 ### Spring Boot Backend Setup (GraphQL)
 
 1. Navigate to the Spring Boot backend directory:
+
 ```bash
 cd backend_spring
 ```
 
 2. Install dependencies and compile:
+
 ```bash
 mvn clean install
 ```
 
 3. Run the Spring Boot server:
+
 ```bash
 mvn spring-boot:run
 ```
 
 The GraphQL API will be available at:
+
 - GraphQL endpoint: http://localhost:8000/graphql
 - GraphiQL UI: http://localhost:8000/graphiql
 - H2 Console: http://localhost:8000/h2-console
@@ -91,16 +107,19 @@ The GraphQL API will be available at:
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
+
 ```bash
 cd frontend
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -112,12 +131,14 @@ The frontend will be available at http://localhost:3000
 To run the full stack, you need to run both servers simultaneously in separate terminal windows:
 
 **Terminal 1 (Backend):**
+
 ```bash
 cd backend
 poetry run uvicorn main:app --reload
 ```
 
 **Terminal 2 (Frontend):**
+
 ```bash
 cd frontend
 npm run dev
@@ -140,18 +161,34 @@ Then open http://localhost:3000 in your browser.
 Endpoint: `POST /graphql`
 
 **Queries:**
+
 ```graphql
 query {
-  notes { id content color date }
-  note(noteId: "123") { id content color date }
+  notes {
+    id
+    content
+    color
+    date
+  }
+  note(noteId: "123") {
+    id
+    content
+    color
+    date
+  }
 }
 ```
 
 **Mutations:**
+
 ```graphql
 mutation {
-  createNote(input: { content: "Hello", color: "#FCA5A5" }) { id }
-  updateNote(noteId: "123", input: { content: "Updated" }) { id }
+  createNote(input: { content: "Hello", color: "#FCA5A5" }) {
+    id
+  }
+  updateNote(noteId: "123", input: { content: "Updated" }) {
+    id
+  }
   deleteNote(noteId: "123")
 }
 ```
@@ -159,6 +196,7 @@ mutation {
 ## Technology Stack
 
 **Frontend:**
+
 - Next.js 15
 - React 19
 - TypeScript
@@ -166,18 +204,21 @@ mutation {
 - Atomic Design methodology
 
 **Backend (FastAPI):**
+
 - FastAPI
 - Pydantic
 - Uvicorn
 - Python 3.10+
 
 **Backend (Django):**
+
 - Django 4.2+
 - Django REST Framework
 - Strawberry GraphQL
 - Python 3.10+
 
 **Backend (Spring Boot):**
+
 - Spring Boot 3.2
 - Spring for GraphQL
 - Spring Data JPA
