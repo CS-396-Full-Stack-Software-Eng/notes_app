@@ -101,7 +101,7 @@ mvn spring-boot:run
 The GraphQL API will be available at:
 
 - GraphQL endpoint: http://localhost:8000/graphql
-- GraphiQL UI: http://localhost:8000/graphiql
+- GraphiQL UI: http://localhost:8000
 - H2 Console: http://localhost:8000/h2-console
 
 ### Frontend Setup
