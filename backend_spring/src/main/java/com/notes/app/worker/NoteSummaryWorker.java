@@ -6,12 +6,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import net.devh.boot.grpc.client.inject.GrpcClient;
-
-import com.notes.app.grpc.NoteSummaryRequest;
-import com.notes.app.grpc.NoteSummaryResponse;
-import com.notes.app.grpc.NoteSummaryServiceGrpc;
-
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 
@@ -19,9 +13,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 public class NoteSummaryWorker {
   private final StringRedisTemplate redis;
   private final SimpMessagingTemplate socket;
-
-  @GrpcClient("note-summary-service")
-  private NoteSummaryServiceGrpc.NoteSummaryServiceBlockingStub mockSummaryService;
 
   public NoteSummaryWorker(StringRedisTemplate redis, SimpMessagingTemplate socket) {
     this.redis = redis;
@@ -62,24 +53,23 @@ public class NoteSummaryWorker {
     String summary = content.length() > 20 ? content.substring(0, 20) + "..." : content;
 
     // simulating heavy work (you'd add your own summary generation logic here)
-    // try {
-    // Thread.sleep(5000);
-    // } catch (InterruptedException e) {
-    // Thread.currentThread().interrupt();
-    // }
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
 
-    // System.out.println("Generated summary for note " + noteId + ": " + summary);
+    System.out.println("Generated summary for note " + noteId + ": " + summary);
 
-    NoteSummaryResponse response = mockSummaryService.getNoteSummary(
-        NoteSummaryRequest.newBuilder().setContent(content).build());
-
-    // Part 2: Send summary to frontend via websocket
+    // send summary to frontend via websocket
     String destination = "/topic/note-summaries";
-    String payload = noteId + "::" + response.getSummary();
+    String payload = noteId + "::" + summary;
     socket.convertAndSend(destination, payload);
     System.out.println("Sent to WebSocket " + destination + ": " + payload);
 
     /**
+     * See README for more detailed instructions:
+     * 
      * Paste into localhost:8000 dev console to test WebSocket connection:
      * const script = document.createElement('script');
      * script.src =
