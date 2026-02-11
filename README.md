@@ -223,7 +223,100 @@ mutation {
 - Spring for GraphQL
 - Spring Data JPA
 - H2 Database
+- Redis (for job queuing)
+- WebSocket/STOMP (for real-time updates)
+- gRPC (for service communication)
 - Java 17+
+
+## Building gRPC/Protobuf (Spring Boot)
+
+The Spring Boot backend uses gRPC for service communication. Proto files are located in `src/main/proto/`.
+
+To compile protos and generate Java stubs:
+
+```bash
+cd backend_spring
+mvn clean compile
+```
+
+This generates Java classes in `target/generated-sources/protobuf/`. If your IDE doesn't recognize the imports, reload the Maven project.
+
+## Testing WebSocket (Spring Boot)
+
+The Spring Boot backend sends real-time note summary updates via WebSocket. To test:
+
+1. **Start Redis:**
+
+   **Option A: Using Docker (recommended)**
+
+   First, install Docker Desktop: https://docs.docker.com/get-docker/
+
+   Then run Redis:
+
+   ```bash
+   docker run -d --name redis -p 6379:6379 redis
+   ```
+
+   To stop/start later:
+
+   ```bash
+   docker stop redis
+   docker start redis
+   ```
+
+   **Option B: Using Homebrew (macOS)**
+
+   ```bash
+   brew install redis
+   brew services start redis
+   ```
+
+2. **Start the Spring Boot server:**
+
+   ```bash
+   cd backend_spring
+   mvn spring-boot:run
+   ```
+
+3. **Open http://localhost:8000/graphiql in your browser**
+
+4. **Open the browser dev console (F12) and paste:**
+
+   ```javascript
+   const script = document.createElement("script");
+   script.src =
+     "https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js";
+   script.onload = () => {
+     const client = new StompJs.Client({
+       brokerURL: "ws://localhost:8000/ws",
+       debug: (str) => console.log(str),
+       onConnect: () => {
+         console.log("Connected!");
+         client.subscribe("/topic/note-summaries", (msg) => {
+           console.log("Received:", msg.body);
+         });
+       },
+     });
+     client.activate();
+     window.stompClient = client;
+   };
+   document.head.appendChild(script);
+   ```
+
+5. **Create a note via GraphQL:**
+
+   ```graphql
+   mutation {
+     createNote(content: "Hello world!", color: "yellow") {
+       id
+     }
+   }
+   ```
+
+6. **Watch the console** - you'll see the summary:
+   ```
+   Received: 18::Note Summary: This note is about 12 characters.
+   ```
 
 ## UI Design Citation
 
