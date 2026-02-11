@@ -34,14 +34,14 @@ public class NoteController {
         return noteService.createNote(input.getContent(), color);
     }
 
-    @MutationMapping
-    public Note updateNote(@Argument Long noteId, @Argument NoteInput input) {
-        return noteService.updateNote(noteId, input.getContent(), input.getColor())
-                .orElse(null);
-    }
+    // @MutationMapping
+    // public Note updateNote(@Argument Long noteId, @Argument NoteInput input) {
+    // return noteService.updateNote(noteId, input.getContent(), input.getColor())
+    // .orElse(null);
+    // }
 
-    @MutationMapping
-    public boolean deleteNote(@Argument Long noteId) {
-        return noteService.deleteNote(noteId);
-    }
+    // @MutationMapping
+    // public boolean deleteNote(@Argument Long noteId) {
+    // return noteService.deleteNote(noteId);
+    // }
 }
