@@ -294,7 +294,7 @@ mutation {
 
 6. After ~5 seconds, you'll see the summary in the console:
 ```
-Received: 1::Hello world!...
+Received event: 1::Hello world!...
 ```
 
 ## UI Design Citation
