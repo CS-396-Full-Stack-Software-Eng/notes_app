@@ -21,7 +21,8 @@ public class MockNoteSummaryService extends NoteSummaryServiceGrpc.NoteSummarySe
 
   @Override
   public void getNoteSummary(NoteSummaryRequest request, StreamObserver<NoteSummaryResponse> responseObserver) {
-    System.out.println("Received getNoteSummary request for note content: " + request.getContent());
+    System.out.println(
+        "MockNoteSummaryService.java: Received getNoteSummary request for note content: " + request.getContent());
 
     // simulate heavy work load time
     try {
@@ -30,7 +31,8 @@ public class MockNoteSummaryService extends NoteSummaryServiceGrpc.NoteSummarySe
     }
 
     // creating mock summary
-    String mockSummary = "Note Summary: This note is about " + request.getContent().length() + " characters.";
+    String mockSummary = "MockNoteSummaryService.java: This note is about " + request.getContent().length()
+        + " characters.";
 
     NoteSummaryResponse response = NoteSummaryResponse.newBuilder()
         .setSummary(mockSummary)

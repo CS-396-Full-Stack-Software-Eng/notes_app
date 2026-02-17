@@ -35,7 +35,7 @@ public class NoteService {
     String event = note.getId() + "::" + content;
     redis.opsForList().rightPush(NOTE_SUMMARY_EVENT_QUEUE, event);
 
-    System.out.println(" queued summary job for note: " + note.getId());
+    System.out.println("NoteService.java: Queued summary job for note: " + note.getId());
 
     return note;
   }

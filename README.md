@@ -1,14 +1,13 @@
 # Notes Application
 
-A full-stack notes application built with Next.js (frontend) and multiple backend options (FastAPI, Django, Spring Boot), following Atomic Design methodology.
+A full-stack notes application built with Next.js (frontend) and Spring Boot (backend), featuring GraphQL, gRPC, Redis event queuing, and WebSocket real-time updates.
 
 ## Features
 
 - Create, read, update, and delete notes
 - Color-coded notes with customizable colors
 - Master-detail view with inline editing
-- Multiple backend options: REST API (FastAPI, Django) and GraphQL (Django, Spring Boot)
-- Semantic HTML and accessible components
+- Real-time note summaries via async worker pipeline
 
 ## Project Structure
 
@@ -18,145 +17,101 @@ w1_basic_notes/
 │   ├── app/          # Next.js app directory
 │   ├── components/   # Atomic Design components
 │   └── ...
-├── backend/           # FastAPI backend (REST API)
-│   ├── main.py
-│   └── pyproject.toml
-├── backend_django/    # Django backend (REST + GraphQL)
-│   ├── core/
-│   ├── services/
-│   └── pyproject.toml
-└── backend_spring/    # Spring Boot backend (GraphQL)
+└── backend_spring/    # Spring Boot backend (GraphQL + gRPC)
     ├── src/main/java/com/notes/app/
+    ├── src/main/proto/
     └── pom.xml
 ```
 
-## Running the Full Stack
-
-### Prerequisites
+## Prerequisites
 
 - Node.js (v18 or higher)
-- Python (v3.10 or higher)
-- Poetry (Python package manager)
-- Java 17 or higher (for Spring Boot)
-- Maven (for Spring Boot)
+- Java 17 or higher
+- Maven
+- Docker (for Redis)
 
-### Backend Setup
+## Running the Full Stack
 
-1. Navigate to the backend directory:
+### 1. Start Redis
 
-```bash
-cd backend
-```
+**Option A: Using Docker (recommended)**
 
-2. Install Poetry (if not already installed):
+First, install Docker Desktop: https://docs.docker.com/get-docker/
 
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-```
-
-3. Install dependencies:
+Then run Redis:
 
 ```bash
-poetry install
+docker run -d --name redis -p 6379:6379 redis
 ```
 
-4. Run the FastAPI server:
+To stop/start later:
 
 ```bash
-poetry run uvicorn main:app --reload
+docker stop redis
+docker start redis
 ```
 
-The API will be available at:
-
-- API: http://localhost:8000
-- Interactive docs: http://localhost:8000/docs
-
-### Django Backend Setup
+**Option B: Using Homebrew (macOS)**
 
 ```bash
-poetry install
-poetry run python manage.py runserver
+brew install redis
+brew services start redis
 ```
 
-### Spring Boot Backend Setup (GraphQL)
-
-1. Navigate to the Spring Boot backend directory:
+### 2. Start the Spring Boot Backend
 
 ```bash
 cd backend_spring
-```
-
-2. Install dependencies and compile:
-
-```bash
 mvn clean install
-```
-
-3. Run the Spring Boot server:
-
-```bash
 mvn spring-boot:run
 ```
 
-The GraphQL API will be available at:
+The backend will be available at:
 
 - GraphQL endpoint: http://localhost:8000/graphql
-- GraphiQL UI: http://localhost:8000
-- H2 Console: http://localhost:8000/h2-console
+- GraphiQL Playground: http://localhost:8000
+- H2 Database Console: http://localhost:8000/h2-console
 
-### Frontend Setup
+#### GraphiQL Playground
 
-1. Navigate to the frontend directory:
+Open http://localhost:8000 in your browser to get an interactive GraphQL IDE where you can write and test queries/mutations against the API.
+
+#### H2 Database Console
+
+Open http://localhost:8000/h2-console to inspect the database directly. Use these connection settings:
+
+| Setting     | Value                      |
+|-------------|----------------------------|
+| JDBC URL    | `jdbc:h2:file:./data/notesdb` |
+| User Name   | `sa`                       |
+| Password    | *(leave blank)*            |
+
+Once connected, you can run SQL queries to view tables and data (e.g., `SELECT * FROM NOTES`).
+
+### 3. Start the Frontend
 
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-
-```bash
 npm install
-```
-
-3. Run the development server:
-
-```bash
 npm run dev
 ```
 
 The frontend will be available at http://localhost:3000
 
-### Running Both
+## Building gRPC/Protobuf
 
-To run the full stack, you need to run both servers simultaneously in separate terminal windows:
+The Spring Boot backend uses gRPC for service communication. Proto files are located in `backend_spring/src/main/proto/`.
 
-**Terminal 1 (Backend):**
-
-```bash
-cd backend
-poetry run uvicorn main:app --reload
-```
-
-**Terminal 2 (Frontend):**
+To compile protos and generate Java stubs:
 
 ```bash
-cd frontend
-npm run dev
+cd backend_spring
+mvn clean compile
 ```
 
-Then open http://localhost:3000 in your browser.
+This generates Java classes in `target/generated-sources/protobuf/`. If your IDE doesn't recognize the imports, reload the Maven project.
 
-## API Endpoints
-
-### REST API (FastAPI, Django)
-
-- `GET /api/notes` - Get all notes
-- `GET /api/notes/{id}` - Get a specific note
-- `POST /api/notes` - Create a new note
-- `PUT /api/notes/{id}` - Update a note
-- `DELETE /api/notes/{id}` - Delete a note
-
-### GraphQL API (Django, Spring Boot)
+## GraphQL API
 
 Endpoint: `POST /graphql`
 
@@ -168,13 +123,13 @@ query {
     id
     content
     color
-    date
+    updatedAt
   }
   note(noteId: "123") {
     id
     content
     color
-    date
+    updatedAt
   }
 }
 ```
@@ -186,101 +141,18 @@ mutation {
   createNote(input: { content: "Hello", color: "#FCA5A5" }) {
     id
   }
-  updateNote(noteId: "123", input: { content: "Updated" }) {
-    id
-  }
-  deleteNote(noteId: "123")
 }
 ```
 
-## Technology Stack
-
-**Frontend:**
-
-- Next.js 15
-- React 19
-- TypeScript
-- Tailwind CSS
-- Atomic Design methodology
-
-**Backend (FastAPI):**
-
-- FastAPI
-- Pydantic
-- Uvicorn
-- Python 3.10+
-
-**Backend (Django):**
-
-- Django 4.2+
-- Django REST Framework
-- Strawberry GraphQL
-- Python 3.10+
-
-**Backend (Spring Boot):**
-
-- Spring Boot 3.2
-- Spring for GraphQL
-- Spring Data JPA
-- H2 Database
-- Redis (for job queuing)
-- WebSocket/STOMP (for real-time updates)
-- gRPC (for service communication)
-- Java 17+
-
-## Building gRPC/Protobuf (Spring Boot)
-
-The Spring Boot backend uses gRPC for service communication. Proto files are located in `src/main/proto/`.
-
-To compile protos and generate Java stubs:
-
-```bash
-cd backend_spring
-mvn clean compile
-```
-
-This generates Java classes in `target/generated-sources/protobuf/`. If your IDE doesn't recognize the imports, reload the Maven project.
-
-## Testing WebSocket (Spring Boot)
+## Testing WebSocket
 
 The Spring Boot backend sends real-time note summary updates via WebSocket. To test:
 
-1. **Start Redis:**
+1. **Start Redis and the Spring Boot server** (see above)
 
-   **Option A: Using Docker (recommended)**
+2. **Open http://localhost:8000/graphiql in your browser**
 
-   First, install Docker Desktop: https://docs.docker.com/get-docker/
-
-   Then run Redis:
-
-   ```bash
-   docker run -d --name redis -p 6379:6379 redis
-   ```
-
-   To stop/start later:
-
-   ```bash
-   docker stop redis
-   docker start redis
-   ```
-
-   **Option B: Using Homebrew (macOS)**
-
-   ```bash
-   brew install redis
-   brew services start redis
-   ```
-
-2. **Start the Spring Boot server:**
-
-   ```bash
-   cd backend_spring
-   mvn spring-boot:run
-   ```
-
-3. **Open http://localhost:8000/graphiql in your browser**
-
-4. **Open the browser dev console (F12) and paste:**
+3. **Open the browser dev console (F12) and paste:**
 
    ```javascript
    const script = document.createElement("script");
@@ -303,20 +175,37 @@ The Spring Boot backend sends real-time note summary updates via WebSocket. To t
    document.head.appendChild(script);
    ```
 
-5. **Create a note via GraphQL:**
+4. **Create a note via GraphQL:**
 
    ```graphql
    mutation {
-     createNote(content: "Hello world!", color: "yellow") {
+     createNote(input: { content: "Hello world!", color: "#FCA5A5" }) {
        id
      }
    }
    ```
 
-6. **Watch the console** - you'll see the summary:
-   ```
-   Received: 18::Note Summary: This note is about 12 characters.
-   ```
+5. **Watch the console** - you'll see the summary appear.
+
+## Technology Stack
+
+**Frontend:**
+
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+
+**Backend (Spring Boot):**
+
+- Spring Boot 3.2
+- Spring for GraphQL
+- Spring Data JPA
+- H2 Database
+- Redis (for job queuing)
+- WebSocket/STOMP (for real-time updates)
+- gRPC (for service communication)
+- Java 17+
 
 ## UI Design Citation
 

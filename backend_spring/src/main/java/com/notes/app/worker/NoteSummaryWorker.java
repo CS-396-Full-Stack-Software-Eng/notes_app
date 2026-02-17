@@ -31,13 +31,14 @@ public class NoteSummaryWorker {
   @EventListener(ApplicationReadyEvent.class)
   public void startWorker() {
     new Thread(() -> {
-      System.out.println("Summary Worker started. Listening for note_summary_event_queue events");
+      System.out
+          .println("NoteSummaryWorker.java: Summary Worker started. Listening for note_summary_event_queue events");
       while (true) {
         try {
           String event = redis.opsForList().leftPop("note_summary_event_queue", Duration.ofSeconds(30));
 
           if (event != null) {
-            System.out.println("Received event: " + event);
+            System.out.println("NoteSummaryWorker.java: Received event: " + event);
             generateSummary(event);
           }
           // if null, just loop and wait again
@@ -61,23 +62,15 @@ public class NoteSummaryWorker {
     // generate summary (for demo just take first 20 chars)
     String summary = content.length() > 20 ? content.substring(0, 20) + "..." : content;
 
-    // simulating heavy work (you'd add your own summary generation logic here)
-    // try {
-    // Thread.sleep(5000);
-    // } catch (InterruptedException e) {
-    // Thread.currentThread().interrupt();
-    // }
-
-    // System.out.println("Generated summary for note " + noteId + ": " + summary);
-
+    // get the summary from the mock gRPC AI service
     NoteSummaryResponse response = mockSummaryService.getNoteSummary(
-        NoteSummaryRequest.newBuilder().setContent(content).build());
+        NoteSummaryRequest.newBuilder().setContent(content).setNoteId(noteId).build());
 
-    // Part 2: Send summary to frontend via websocket
+    // send summary to frontend via websocket
     String destination = "/topic/note-summaries";
     String payload = noteId + "::" + response.getSummary();
     socket.convertAndSend(destination, payload);
-    System.out.println("Sent to WebSocket " + destination + ": " + payload);
+    System.out.println("NoteSummaryWorker.java: Sent to WebSocket " + destination + ": " + payload);
 
     /**
      * Paste into localhost:8000 dev console to test WebSocket connection:
